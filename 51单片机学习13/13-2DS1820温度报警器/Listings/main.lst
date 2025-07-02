@@ -1,0 +1,137 @@
+C51 COMPILER V9.54   MAIN                                                                  07/02/2025 17:34:18 PAGE 1   
+
+
+C51 COMPILER V9.54, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN .\Objects\main.obj
+COMPILER INVOKED BY: D:\keil\C51\BIN\C51.EXE main.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\main.ls
+                    -t) TABS(2) OBJECT(.\Objects\main.obj)
+
+line level    source
+
+   1          #include <REGX52.H>
+   2          #include "DS18B20.h"
+   3          #include "Delay.h"
+   4          #include "LCD1602.h"
+   5          #include "Key.h"
+   6          #include "AT24C02.h"
+   7          #include "I2C.h"
+   8          #include "Timer0.h"
+   9          
+  10          float T;
+  11          char TLow,THigh;
+  12          unsigned char KeyNum,TShow;
+  13          
+  14          void  main()
+  15          {
+  16   1        THigh=AT24C02_ReadByte(0);
+  17   1        TLow=AT24C02_ReadByte(1);
+  18   1        if(THigh>125||TLow<-55||THigh<=TLow)
+  19   1        {
+  20   2          THigh=20;
+  21   2          TLow=15;
+  22   2        }
+  23   1        LCD_Init();
+  24   1        LCD_ShowString(1,1,"T:");
+  25   1        LCD_ShowString(2,1,"TH:");
+  26   1        LCD_ShowString(2,9,"TL:");
+  27   1        LCD_ShowSignedNum(2,4,THigh,3);
+  28   1        LCD_ShowSignedNum(2,12,TLow,3);
+  29   1        while(1)
+  30   1        {
+  31   2          KeyNum=Key();
+  32   2          /*温度读取及显示*/
+  33   2          DS18B20_ConvertT();
+  34   2          T=DS18B20_ReadT();
+  35   2          if(T<0)
+  36   2          {
+  37   3            LCD_ShowChar(1,3,'-');
+  38   3            TShow=-T;
+  39   3          }
+  40   2          else
+  41   2          {
+  42   3            LCD_ShowChar(1,3,'+');
+  43   3            TShow=T;
+  44   3          }
+  45   2          LCD_ShowNum(1,4,TShow,3);
+  46   2          LCD_ShowChar(1,7,'.');
+  47   2          LCD_ShowNum(1,8,(unsigned long)(TShow*100)%100,2);
+  48   2          
+  49   2          
+  50   2          
+  51   2          
+  52   2          /*阈值判断及显示*/
+  53   2          if(KeyNum)
+  54   2          {
+C51 COMPILER V9.54   MAIN                                                                  07/02/2025 17:34:18 PAGE 2   
+
+  55   3            if(KeyNum==1)
+  56   3            {
+  57   4              THigh++;
+  58   4              if(THigh>125){THigh=125;}
+  59   4            }       
+  60   3            if(KeyNum==2)
+  61   3            {
+  62   4              THigh--;
+  63   4              if(THigh<=TLow){THigh++;}
+  64   4            }   
+  65   3            if(KeyNum==3)
+  66   3            {
+  67   4              TLow++;
+  68   4              if(TLow>=THigh){TLow--;}
+  69   4            }   
+  70   3            if(KeyNum==4)
+  71   3            {
+  72   4              TLow--;
+  73   4              if(TLow<-55){TLow=-55;}
+  74   4            }
+  75   3            LCD_ShowSignedNum(2,4,THigh,3);
+  76   3            LCD_ShowSignedNum(2,12,TLow,3);
+  77   3            AT24C02_WriteByte(0,THigh);
+  78   3            Delay(5);
+  79   3            AT24C02_WriteByte(1,TLow);
+  80   3            Delay(5);
+  81   3          }
+  82   2          if(T>THigh)
+  83   2          {
+  84   3            LCD_ShowString(1,13,"OV:H");
+  85   3          }
+  86   2          else if(T<TLow)
+  87   2          {
+  88   3            LCD_ShowString(1,13,"OV:L");
+  89   3          }
+  90   2          else
+  91   2          {
+  92   3            LCD_ShowString(1,13,"    ");
+  93   3          }
+  94   2          
+  95   2        }
+  96   1      }
+  97          
+  98          void Timer0_Routine()  interrupt 1
+  99          {
+ 100   1        static unsigned int T0Count;
+ 101   1        TH0=0xfc;
+ 102   1        TL0=0x18;
+ 103   1        T0Count++;
+ 104   1        if(T0Count>=20)
+ 105   1        {
+ 106   2          T0Count=0;
+ 107   2          Key_Loop();
+ 108   2        }
+ 109   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    589    ----
+   CONSTANT SIZE    =     26    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+C51 COMPILER V9.54   MAIN                                                                  07/02/2025 17:34:18 PAGE 3   
+
+   DATA SIZE        =     10    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
