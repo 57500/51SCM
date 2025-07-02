@@ -1,0 +1,74 @@
+C51 COMPILER V9.54   MAIN                                                                  07/02/2025 23:06:06 PAGE 1   
+
+
+C51 COMPILER V9.54, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN .\Objects\main.obj
+COMPILER INVOKED BY: D:\keil\C51\BIN\C51.EXE main.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\main.ls
+                    -t) TABS(2) OBJECT(.\Objects\main.obj)
+
+line level    source
+
+   1          #include <REGX52.H>
+   2          #include "Delay.h"
+   3          #include "Key.h"
+   4          #include "Nixie.h"
+   5          #include "Timer0.h"
+   6          
+   7          unsigned char Counter,Compare;
+   8          unsigned char KeyNum,Speed;
+   9          sbit Motor=P1^0;
+  10          
+  11          void  main()
+  12          {
+  13   1        Timer0_Init();
+  14   1        Compare=5;
+  15   1        while(1)
+  16   1        {
+  17   2          KeyNum=Key();
+  18   2          if(KeyNum==1)
+  19   2          {
+  20   3            Speed++;
+  21   3            Speed%=4;
+  22   3            if(Speed==0)Compare=0;
+  23   3            if(Speed==1)Compare=50;
+  24   3            if(Speed==2)Compare=75;     
+  25   3            if(Speed==3)Compare=100;
+  26   3      
+  27   3      
+  28   3          }
+  29   2          Nixie(1,Speed);
+  30   2        }
+  31   1      }
+  32          
+  33          void Timer0_Routine()  interrupt 1
+  34          {
+  35   1      
+  36   1        TH0=0xff;
+  37   1        TL0=0x9c;
+  38   1        Counter++;
+  39   1        Counter%=100;
+  40   1        if(Counter<Compare)
+  41   1        {
+  42   2          Motor=1;
+  43   2        }
+  44   1        else
+  45   1        {
+  46   2          Motor=0;
+  47   2        }
+  48   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    107    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+C51 COMPILER V9.54   MAIN                                                                  07/02/2025 23:06:06 PAGE 2   
+
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      4    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
