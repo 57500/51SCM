@@ -1,0 +1,66 @@
+C51 COMPILER V9.54   XPT2046                                                               07/03/2025 17:35:21 PAGE 1   
+
+
+C51 COMPILER V9.54, COMPILATION OF MODULE XPT2046
+OBJECT MODULE PLACED IN .\Objects\XPT2046.obj
+COMPILER INVOKED BY: D:\keil\C51\BIN\C51.EXE XPT2046.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\XPT2
+                    -046.lst) TABS(2) OBJECT(.\Objects\XPT2046.obj)
+
+line level    source
+
+   1          #include <REGX52.H>
+   2          #include "Delay.h"
+   3          
+   4          
+   5          sbit XPT2046_CS=P3^5;
+   6          sbit XPT2046_DCLK=P3^6;
+   7          sbit XPT2046_DIN=P3^4;
+   8          sbit XPT2046_DOUT=P3^7;
+   9          
+  10          
+  11          unsigned int XPT2046_ReadAD(unsigned char Command)
+  12          {
+  13   1        unsigned char i;
+  14   1        unsigned int ADVAlue=0;
+  15   1        XPT2046_DCLK=0;
+  16   1        XPT2046_CS=0;
+  17   1        XPT2046_DIN=Command&0x80;
+  18   1        XPT2046_DCLK=1;
+  19   1        Delay(1);
+  20   1        XPT2046_DCLK=0;
+  21   1      
+  22   1        
+  23   1        for(i=0;i<8;i++)
+  24   1        {
+  25   2          XPT2046_DIN=Command&(0x80>>i);
+  26   2          XPT2046_DCLK=1;
+  27   2          Delay(1); 
+  28   2          XPT2046_DCLK=0;
+  29   2        }
+  30   1        
+  31   1        for(i=0;i<16;i++)
+  32   1        {
+  33   2          XPT2046_DCLK=1;
+  34   2          Delay(1);
+  35   2          XPT2046_DCLK=0;
+  36   2          if(XPT2046_DOUT){ADVAlue|=(0x8000>>i);}
+  37   2        }
+  38   1        XPT2046_CS=1;
+  39   1        
+  40   1        
+  41   1        return ADVAlue>>8;
+  42   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    129    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----       4
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
